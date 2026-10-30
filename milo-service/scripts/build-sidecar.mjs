@@ -1,0 +1,38 @@
+// Build a native-architecture Node single executable for Tauri's sidecar bundler.
+import { build } from 'esbuild';
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+if (process.platform !== 'darwin') throw new Error('This packaging script currently targets macOS only');
+const nodeBin = process.env.MILO_SEA_NODE || process.execPath;
+const nodeInfo = spawnSync(nodeBin, ['-p', 'JSON.stringify({version:process.versions.node,arch:process.arch})'], { encoding: 'utf8' });
+if (nodeInfo.status !== 0) throw new Error('Cannot run the selected Node binary');
+const node = JSON.parse(nodeInfo.stdout);
+const [major, minor] = node.version.split('.').map(Number);
+if (major < 25 || (major === 25 && minor < 5)) throw new Error('Building the sidecar requires Node 25.5 or newer');
+const result = spawnSync('rustc', ['-vV'], { encoding: 'utf8' });
+if (result.status !== 0) throw new Error('Could not determine the Rust host target');
+const target = result.stdout.match(/^host: (.+)$/m)?.[1];
+const expected = node.arch === 'arm64' ? 'aarch64-apple-darwin' : node.arch === 'x64' ? 'x86_64-apple-darwin' : '';
+if (!target || target !== expected) throw new Error(`Node architecture and Rust host do not match (${node.arch}, ${target})`);
+const out = path.join(root, 'build'); fs.mkdirSync(out, { recursive: true });
+const license = process.env.MILO_NODE_LICENSE || path.resolve(path.dirname(nodeBin), '../LICENSE');
+if (!fs.existsSync(license)) throw new Error('Node license file not found; set MILO_NODE_LICENSE to the selected Node distribution license');
+fs.copyFileSync(license, path.join(out, 'LICENSE.node'));
+const binaries = path.resolve(root, '../milo-app/src-tauri/binaries'); fs.mkdirSync(binaries, { recursive: true });
+const bundle = path.join(out, 'service.cjs');
+await build({ entryPoints: [path.join(root, 'service.ts')], bundle: true, platform: 'node', format: 'cjs', target: 'node25', outfile: bundle, logLevel: 'info' });
+const binary = path.join(binaries, `milo-service-${target}`);
+const config = path.join(out, 'sea.json');
+fs.writeFileSync(config, JSON.stringify({ main: bundle, output: binary, disableExperimentalSEAWarning: true, execArgv: ['--no-warnings'], execArgvExtension: 'none' }, null, 2));
+function run(command, args) { const r = spawnSync(command, args, { stdio: 'inherit', cwd: root }); if (r.error || r.status !== 0) throw new Error(`${command} failed: ${r.error?.message ?? r.status}`); }
+run(nodeBin, [`--build-sea=${config}`]);
+run('codesign', ['--force', '--sign', '-', binary]);
+run('codesign', ['--verify', '--strict', binary]);
+const helper = path.join(binaries, `milo-notify-${target}`);
+run('swiftc', [path.join(root, 'scripts/notify.swift'), '-o', helper]);
+run('codesign', ['--force', '--sign', '-', helper]);
+run('codesign', ['--verify', '--strict', helper]);
+console.log(`Sidecar ready: ${binary}`);

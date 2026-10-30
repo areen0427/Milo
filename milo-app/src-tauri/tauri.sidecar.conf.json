@@ -1,0 +1,12 @@
+{
+  "bundle": {
+    "externalBin": [
+      "binaries/milo-service",
+      "binaries/milo-notify"
+    ],
+    "resources": {
+      "../../milo-service/build/LICENSE.node": "licenses/Node-LICENSE",
+      "../../LICENSE": "licenses/Project-LICENSE"
+    }
+  }
+}

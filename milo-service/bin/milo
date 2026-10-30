@@ -1,0 +1,4 @@
+#!/bin/sh
+# Development launcher for the Milo CLI (requires Node 22.13+).
+here="$(cd "$(dirname "$0")/.." && pwd)"
+exec node --experimental-strip-types --no-warnings "$here/cli.ts" "$@"

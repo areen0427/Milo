@@ -1,0 +1,617 @@
+/* ---------- tokens ---------- */
+:root,
+html[data-theme="phosphor"] {
+  --bg: #0b0e10;
+  --panel: #11161a;
+  --panel-raised: #161d22;
+  --line: #1e2a30;
+  --line-strong: #2a3942;
+  --text: #d6e2da;
+  --text-muted: #7f9189;
+  --text-faint: #4f5f67;
+  --accent: #f5b453;
+  --accent-dim: rgba(245, 180, 83, 0.14);
+  --ok: #7fd1a6;
+  --warn: #e8875a;
+  --focus: #5fd4e6;
+  --milo-orange: #ff8a2a;
+
+  --font-ui: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --radius: 10px;
+  --titlebar-h: 38px;
+  --statusbar-h: 26px;
+  --sidebar-w: 212px;
+  color-scheme: dark;
+}
+
+/* ---------- base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.5 var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+button,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.faint {
+  color: var(--text-faint);
+}
+
+.section-label {
+  font: 11px var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* App grid: dot-grid canvas, sidebar + main, titlebar and status bar spanning. */
+.app {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  grid-template-rows: var(--titlebar-h) minmax(0, 1fr) var(--statusbar-h);
+  grid-template-areas:
+    "title title"
+    "side main"
+    "status status";
+  height: 100%;
+  background-color: var(--bg);
+  background-image: radial-gradient(rgba(214, 226, 218, 0.06) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.btn {
+  padding: 7px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--panel-raised);
+  font-size: 13px;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.btn:disabled {
+  color: var(--text-faint);
+  background: transparent;
+  border-color: var(--line);
+}
+
+.btn-primary:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1a1204;
+  font-weight: 500;
+}
+
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+/* ---------- titlebar ---------- */
+.titlebar {
+  grid-area: title;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+  -webkit-app-region: drag;
+}
+
+/* macOS overlay titlebar: leave room for the traffic lights at the top left. */
+.app[data-native-titlebar="macos"] .titlebar {
+  padding-left: 78px;
+}
+
+.titlebar-title {
+  font: 11px var(--font-mono);
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+}
+
+/* ---------- sidebar ---------- */
+.sidebar {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 12px 14px;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px 18px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.mark {
+  color: var(--accent);
+  flex: none;
+}
+
+.brand-name {
+  font: 600 13px/1.2 var(--font-mono);
+  letter-spacing: 0.28em;
+}
+
+.brand-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  text-align: left;
+}
+
+.nav-item:hover {
+  color: var(--text);
+  background: var(--panel-raised);
+}
+
+.nav-item[aria-current="page"] {
+  color: var(--text);
+  background: var(--accent-dim);
+}
+
+.nav-item[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: var(--accent);
+}
+
+.nav-item[aria-current="page"] svg {
+  color: var(--accent);
+}
+
+.sidebar-foot {
+  margin-top: auto;
+  padding: 14px 8px 0;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 6px;
+}
+
+.service-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  flex: none;
+}
+
+.dot-ok {
+  background: var(--ok);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+@media (max-height: 700px) {
+  .sidebar { padding: 12px 12px 10px; }
+  .brand { padding-bottom: 10px; margin-bottom: 8px; }
+  .nav { gap: 0; }
+  .nav-item { padding: 5px 12px; }
+  .sidebar-foot { padding-top: 10px; gap: 4px; }
+}
+
+/* ---------- main ---------- */
+.main {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 24px 28px 22px;
+  gap: 20px;
+}
+
+.main-title {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.main-sub {
+  margin-top: 4px;
+  color: var(--text-muted);
+}
+
+.frame {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+/* Corner brackets: small square marks inset inside the frame. */
+.corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 0 solid var(--accent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.corner.tl { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
+.corner.tr { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
+.corner.bl { bottom: 8px; left: 8px; border-width: 0 0 1px 1px; }
+.corner.br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+
+/* ---------- status bar ---------- */
+.statusbar {
+  grid-area: status;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+  font: 11px var(--font-mono);
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.statusbar-sep {
+  margin: 0 8px;
+  color: var(--text-faint);
+}
+
+/* ---------- views ---------- */
+.chat {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.transcript {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.composer {
+  padding: 14px 16px 12px;
+  border-top: 1px solid var(--line);
+}
+
+.composer-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.composer-input {
+  flex: 1;
+  min-height: 42px;
+  max-height: 152px;
+  padding: 9px 12px;
+  line-height: 22px;
+  resize: none;
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+}
+
+.composer-input::placeholder {
+  color: var(--text-faint);
+}
+
+.composer-input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.composer-row .btn {
+  height: 42px;
+}
+
+.composer-caption {
+  margin-top: 8px;
+  font: 11px var(--font-mono);
+  color: var(--text-faint);
+}
+
+.empty {
+  flex: 1;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  padding: 24px;
+  text-align: center;
+}
+
+.empty-title {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.empty-body {
+  max-width: 340px;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+}
+
+.permissions {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 20px 20px;
+}
+
+.perm-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.perm-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.perm-name {
+  font-weight: 500;
+}
+
+.perm-desc {
+  color: var(--text-muted);
+}
+
+.tag {
+  flex: none;
+  padding: 2px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font: 11px var(--font-mono);
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.perm-note {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ---------- welcome intro ---------- */
+/* Covers the window on every launch. It stays until the button is pressed. */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 40px;
+  background: var(--bg);
+}
+
+.intro-leaving {
+  animation: intro-fade-out 500ms ease forwards;
+  pointer-events: none;
+}
+
+.intro-svg {
+  position: relative;
+  width: min(78vw, 980px);
+  height: auto;
+  overflow: visible;
+}
+
+/* A soft warm glow behind the glass, which lifts the word off the dark canvas. */
+.intro::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 72vw;
+  height: 46vh;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(255, 138, 42, 0.2), rgba(255, 138, 42, 0) 70%);
+  filter: blur(24px);
+  pointer-events: none;
+}
+
+/* Per-letter timing: each letter starts 420ms after the last and draws for 800ms. */
+.intro-stroke {
+  fill: none;
+  stroke: var(--milo-orange);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 1;
+  animation: intro-draw 800ms ease-in-out forwards;
+  animation-delay: calc(150ms + var(--i) * 420ms);
+}
+
+/* The fill colour comes from the glass gradient set on the element. */
+.intro-fill {
+  opacity: 0;
+  animation: fade-in 600ms ease forwards;
+  animation-delay: calc(950ms + var(--i) * 420ms);
+}
+
+/* Appears once the wordmark is fully drawn. */
+.intro-button {
+  padding: 10px 26px;
+  border: 1px solid var(--milo-orange);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--milo-orange);
+  font: 12px var(--font-mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: fade-in 500ms ease forwards;
+  animation-delay: 2900ms;
+}
+
+.intro-button:hover {
+  background: rgba(255, 138, 42, 0.12);
+}
+
+.intro-button:focus-visible {
+  outline: 2px solid var(--milo-orange);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No animation: show the finished wordmark and the button at once. */
+  .intro-stroke {
+    stroke-dashoffset: 0;
+  }
+  .intro-fill,
+  .intro-button {
+    opacity: 1;
+  }
+}
+
+@keyframes intro-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes intro-fade-out {
+  to { opacity: 0; }
+}
+
+/* ---------- motion ---------- */
+/* Scanlines sit above everything but never take input. */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.025) 0,
+    rgba(255, 255, 255, 0.025) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.workspace-list { overflow: auto; height: 100%; padding: 20px; }
+.workspace-list article { border-bottom: 1px solid var(--line, #454545); padding: 16px 0; }
+.workspace-list form { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; margin: 12px 0; }
+.workspace-list label { display: flex; flex-direction: column; gap: 4px; }
+.workspace-list input, .workspace-list select { color: inherit; background: #202020; border: 1px solid #555; padding: 8px; max-width: 100%; }
+.workspace-list pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 18em; overflow: auto; }

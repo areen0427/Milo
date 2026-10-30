@@ -12,21 +12,13 @@ import { resolveDesktopApiClientLocalCommand } from '../../../cli/desktopApiClie
 const root = path.resolve(__dirname, '../../..');
 
 describe('CLI entrypoint contract', () => {
-  it('maps both public commands to the standalone local runtime only', () => {
+  it('does not register the legacy Aiden or transitional Milo npm commands', () => {
     const manifest = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8')) as {
-      bin: Record<string, string>;
-      files: string[];
+      private?: boolean;
+      bin?: Record<string, string>;
     };
-    expect(manifest.bin).toEqual({
-      aiden: './bin/aiden-bootstrap.cjs',
-      'aiden-runtime': './bin/aiden-bootstrap.cjs',
-    });
-    expect(manifest.files).toContain('bin/aiden-bootstrap.cjs');
-    expect(manifest.files).toContain('bin/aiden-updater.cjs');
-    expect(manifest.files).not.toContain('bin/');
-    expect(manifest.files).not.toContain('dist-bundle/');
-    expect(manifest.files).not.toContain('packages/aiden-os/');
-    expect(manifest.files).not.toContain('release-notes-v4.16.0.md');
+    expect(manifest.private).toBe(true);
+    expect(manifest.bin).toBeUndefined();
   });
 
   it('routes interactive CLI and Workbench through the same installed launcher', () => {

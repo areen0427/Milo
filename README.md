@@ -1,3 +1,19 @@
+# Milo
+
+Milo is the new name for this project, formerly Aiden. It is a local-first agent runtime with a CLI, HTTP API, browser Workbench, desktop shell, tools, memory, and channel integrations. This checkout is private and no longer registers or publishes the old Aiden npm commands. Historical Aiden instructions below are reference material only; they do not install Milo. The Milo app, CLI, npm package and website are not built yet.
+
+## Direction
+
+Milo is planned as a macOS-first Rust and Tauri app backed by a packaged Python agent service. The service will manage tasks, schedules, memory, tools, permissions and recovery, combining deterministic orchestration with a small neural model. The goal is a seamless local first run and background operation while the computer is awake, with user-controlled autonomy.
+
+The planned custom inference engine will cover model loading, tokenization, tensor execution, transformers, caching and sampling, with measured CPU, GPU and Apple Silicon acceleration. An established local backend can support the product while the custom engine matures. Model training and the engine are separate efforts; fine-tuning and continued pretraining are candidates to evaluate.
+
+A first local TypeScript service prototype now persists mock tasks; it has no inference engine or tool execution. See [milo-service-design.md](milo-service-design.md) for its protocol, testing and limitations. The Python service remains a longer-term design choice.
+
+The remaining features are plans, not implemented features. See [milo-plan.md](milo-plan.md) for the target architecture and Aiden salvage assessment, [arch.md](arch.md) for the inherited implementation, and [continuation.md](continuation.md) for next steps. The older material below describes the existing Aiden release and may not describe the planned Milo architecture.
+
+---
+
 <img width="1672" height="941" alt="AIDEN BOOTUP LOGO" src="https://github.com/user-attachments/assets/c0809009-73e2-4d58-9292-12fbd0324952" />
 
 ```text
